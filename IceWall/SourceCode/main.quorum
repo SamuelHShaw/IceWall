@@ -1,0 +1,83 @@
+use Libraries.Game.Game
+use Libraries.Game.Graphics.Model
+use Libraries.Game.Graphics.Color
+use Libraries.Interface.Events.CollisionListener3D
+use Libraries.Interface.Events.CollisionEvent3D
+use Libraries.Sound.Audio
+use Libraries.Game.Graphics.DirectionalLight
+use Libraries.Game.Graphics.AmbientLight
+use Libraries.Game.Graphics.Camera
+use Libraries.Compute.Random
+
+class Main is Game, CollisionListener3D
+Model ground
+Model box1
+Color color
+Random random
+
+number boxZ = -10
+
+    action Main
+        StartGame()
+    end
+
+    action CreateGame
+        DirectionalLight light
+        light:SetColor(0.8, 0.8, 0.8, 1)
+        light:SetDirection(GetCamera3D():GetDirection())
+        Add(light)
+
+        AmbientLight ambient
+        ambient:SetColor(0.4, 0.4, 0.4, 1)
+        SetAmbientLight(ambient)
+
+        Camera camera = GetCamera3D()
+        camera:SetPosition(5, 15, -10)
+        //camera:LookAt(0, 10, 0)
+
+       EnablePhysics3D(true)
+       
+       //build ground
+       ground:LoadBox(20,1,200, color:Gray())
+       ground:SetPosition(5,0,90)
+       Add(ground)
+//       ground:EnablePhysics(true)
+//       ground:SetUnmovable()
+
+       //build wall of boxes
+       integer i = 0
+         repeat 10 times
+            integer j = 0
+                repeat 10 times
+                        Model box
+                        Color boxColor
+                        boxColor:SetColor(random:RandomNumber(),random:RandomNumber(),random:RandomNumber(),1)
+                        box:LoadBox(1,1,1, boxColor)
+                        box:SetPosition(i,j,40)
+                        Add(box)
+                        box:EnablePhysics(true)
+                        box:SetResponsive()
+                        box:SetRestitution(1)
+                        j = j + 1
+                end
+            i = i + 1 
+        end
+
+        //build box to slide towards wall of boxes
+       box1:LoadBox(5,5,5, color:Black())
+       box1:SetPosition(0,1,5)
+       box1:EnablePhysics(true)
+       //box1:SetResponsive()
+       Add(box1)
+
+       SetGravity3D(0,-1,0)
+
+       //AddCollisionListener(me)
+
+    end
+
+    action Update(number seconds)
+        box1:SetPosition(5,1,boxZ)
+        boxZ = boxZ + 1
+    end
+end
